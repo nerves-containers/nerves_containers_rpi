@@ -1,0 +1,47 @@
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_CERT_PATH: "/certs/client"
+
+stages:
+  - prepare
+  - build
+
+##########################################
+# The meta jobs are used to build the images that are actually used in the later stages
+##########################################
+
+meta-build-image:
+  image: docker:stable
+  services:
+    - docker:dind
+  stage: prepare
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - cd .meta
+    - docker build --build-arg CI_REGISTRY=$CI_REGISTRY --build-arg IMAGE_TAG=$CI_COMMIT_REF_NAME -t $CI_REGISTRY_IMAGE/buildimage:$CI_COMMIT_REF_NAME .
+    - docker push $CI_REGISTRY_IMAGE/buildimage:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - main
+      - development
+    changes:
+      - .meta/Dockerfile
+
+#####################
+
+build_artifact:
+  image: $CI_REGISTRY_IMAGE/buildimage:$CI_COMMIT_REF_NAME
+  stage: build
+  script:
+    - bash _init_ci.sh
+    - mix nerves.artifact --path /tmp
+  artifacts:
+    paths:
+      - /tmp/nerves_*.tar.gz
+  only:
+    refs:
+      - main
+      - development
