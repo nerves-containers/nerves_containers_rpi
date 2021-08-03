@@ -19,6 +19,9 @@ disable_splash=1
 # configuration. See Target packages->Hardware handling->Firmware.
 gpu_mem=192
 
+# Disable Overscan
+disable_overscan=1
+
 # Enable I2C, SPI, and audio
 dtparam=i2c_arm=on
 dtparam=spi=on
