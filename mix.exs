@@ -66,9 +66,9 @@ defmodule NervesSystemRpi.MixProject do
 
   defp deps do
     [
-      {:nerves, "~> 1.5.4 or ~> 1.6.0 or ~> 1.7.15", runtime: false},
-      {:nerves_system_br, "1.20.0", runtime: false},
-      {:nerves_toolchain_armv6_nerves_linux_gnueabihf, "~> 1.5.0", runtime: false},
+      {:nerves, "~> 1.6.0 or ~> 1.7.15 or ~> 1.8.0", runtime: false},
+      {:nerves_system_br, "1.20.3", runtime: false},
+      {:nerves_toolchain_armv6_nerves_linux_gnueabihf, "~> 1.6.0", runtime: false},
       {:nerves_system_linter, "~> 0.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false}
     ]
@@ -109,7 +109,7 @@ defmodule NervesSystemRpi.MixProject do
       "fwup-revert.conf",
       "fwup.conf",
       "LICENSE",
-      "linux-5.10.defconfig",
+      "linux-5.15.defconfig",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",
