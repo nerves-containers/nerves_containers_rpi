@@ -1,0 +1,50 @@
+name: Update Fork
+
+on:
+  schedule:
+    - cron: '15 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update_and_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/nerves-project/nerves_system_rpi.git
+
+      - name: Fetch upstream
+        run: git fetch upstream
+
+      - name: Update main branch from upstream
+        run: |
+          git checkout main
+          git pull upstream main --rebase
+          git push origin main
+
+      - name: Create Pull Request to merge main into development
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base development \
+            --head main \
+            --title 'Automated PR: Merge main into development' \
+            --body $'This PR was automatically created by a GitHub Action.\nIt proposes to merge the latest changes from the `main` branch (synced with upstream) into the `development` branch.\nPlease review the changes and resolve any conflicts.' \
+            --label "automated pr" \
+            --assignee "${{ github.actor }}" \
+            --reviewer "${{ github.actor }}" \
+          || echo "Could not create PR. It might already exist, main might be already merged, or another error occurred."
